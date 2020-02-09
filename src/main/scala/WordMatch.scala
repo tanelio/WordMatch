@@ -13,6 +13,16 @@ object WordMatch extends App {
   var discq = 0
   for (dict <- List("adj", "adv", "noun", "verb")) Initialize(dict)
   println(s"Disqualified = $discq, words = ${words.size}")
+  val w = "liberation"
+  println(s"test: $w")
+  findWord(w)
+
+  def findWord(w: String) {
+    val word = HashSet() ++ w.toArray.toSet // Get the hashSet of the word
+    for (wrd <- words)
+      if (wrd._2._1.subsetOf(word))
+        println(s"Subset: ${wrd._1}: ${wrd._2._2}")
+  }
 
   def Initialize(what: String): Unit = {
     println(s"reading $what")
