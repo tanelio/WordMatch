@@ -13,35 +13,36 @@ import scala.collection.mutable
 
 
 object WordMatch extends App {
-  Initialize
+  var words: mutable.HashMap[String, (HashSet[Char], String)] = mutable.HashMap()
+  var d = 0
+  Initialize("adj")
+  Initialize("adv")
+  Initialize("noun")
+  Initialize("verb")
+  println(s"Disqualified = $d, words = ${words.size}")
 
-  def Initialize(): Unit = {
-    val adj = new File("dict/data.adj")
+
+  def Initialize(what: String): Unit = {
+    println(s"reading $what")
+    val adj = new File(s"dict/data.$what")
     implicit val codec = Codec("UTF-8")
     codec.onMalformedInput(CodingErrorAction.REPLACE)
     codec.onUnmappableCharacter(CodingErrorAction.REPLACE)
     val bufferedSource = Source.fromFile(adj)
     val lineI = bufferedSource.getLines.filter(p => p.head.isDigit)
-    var words: mutable.HashMap[String, (HashSet[Char], String)] = mutable.HashMap()
-    var d = 0
     do { // Skip pre-amble
       val l = lineI.next.split('|')
-      val w = l(0).split(' ')
+      val c = l(0).split(' ').drop(3)
+      for (w <- c)
       if (w(4).contains('-') || w(4).contains(' ') || w(4).contains('_') || w(4).contains('.') || w(4).contains('(')) {
-        println(s"Disqualifying: ${w(0)} ${w(4)}")
+//        println(s"Disqualifying: ${w(0)} ${w(4)}")
         d += 1
       } else {
-        val hs = HashSet() ++ w(4).toArray.toSet
-        words.addOne(w(4), (hs, (l(1).tail)))
-        if (words.size < 10)
-          println(s"id=${w(0)}, word=${w(4)}, expl=${l(1).tail}")
+        words.addOne(w(4), (HashSet() ++ w(4).toArray.toSet, (l(1).tail)))
+//        if (words.size < 10) println(s"id=${w(0)}, word=${w(4)}, expl=${l(1).tail}")
       }
     } while (lineI.hasNext)
-    println(s"Disqualified = $d, words = ${words.size}")
-
     bufferedSource.close
-
-
   }
 }
 
