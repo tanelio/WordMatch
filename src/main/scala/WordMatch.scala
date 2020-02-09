@@ -6,6 +6,7 @@ import scala.io.Source
 import scala.sys.process._
 import scala.collection.immutable.HashSet
 import scala.collection.mutable
+import scala.util.control.Breaks._
 
 /*
     HashMap[HashSet, Word, Exp]
@@ -32,14 +33,18 @@ object WordMatch extends App {
     val lineI = bufferedSource.getLines.filter(p => p.head.isDigit)
     do { // Skip pre-amble
       val l = lineI.next.split('|')
-      val c = l(0).split(' ').drop(3)
-      for (w <- c)
-      if (w(4).contains('-') || w(4).contains(' ') || w(4).contains('_') || w(4).contains('.') || w(4).contains('(')) {
-//        println(s"Disqualifying: ${w(0)} ${w(4)}")
-        d += 1
-      } else {
-        words.addOne(w(4), (HashSet() ++ w(4).toArray.toSet, (l(1).tail)))
-//        if (words.size < 10) println(s"id=${w(0)}, word=${w(4)}, expl=${l(1).tail}")
+      val c = l(0).split(' ').drop(4)
+      breakable {
+        for (wd <- c if wd.head.isLetter) {
+          if (!wd.head.isLetter || wd == "n" || wd == "a") break
+          if (wd.contains('-') || wd.contains(' ') || wd.contains('_') || wd.contains('.') || wd.contains('(')) {
+            //          println(s"Disqualifying: $wd")
+            d += 1
+          } else {
+            words.addOne(wd, (HashSet() ++ wd.toArray.toSet, (l(1).tail)))
+            if (words.size < 20) println(s"word=$wd, expl=${l(1).tail}")
+          }
+        }
       }
     } while (lineI.hasNext)
     bufferedSource.close
