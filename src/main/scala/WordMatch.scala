@@ -8,11 +8,6 @@ import scala.collection.immutable.HashSet
 import scala.collection.mutable
 import scala.util.control.Breaks._
 
-/*
-    HashMap[HashSet, Word, Exp]
- */
-
-
 object WordMatch extends App {
   var words: mutable.HashMap[String, (HashSet[Char], String)] = mutable.HashMap()
   var d = 0
@@ -21,7 +16,6 @@ object WordMatch extends App {
   Initialize("noun")
   Initialize("verb")
   println(s"Disqualified = $d, words = ${words.size}")
-
 
   def Initialize(what: String): Unit = {
     println(s"reading $what")
@@ -37,12 +31,19 @@ object WordMatch extends App {
       breakable {
         for (wd <- c /*if wd.head.isLetter*/) {
           if (!wd.head.isLetter || wd == "n" || wd == "a") break
-          if (wd.contains('-') || wd.contains(' ') || wd.contains('_') || wd.contains('.') || wd.contains('(')) {
-            //          println(s"Disqualifying: $wd")
+          if (wd.contains('.')) {
+            println(s"Disqualifying: $wd")
             d += 1
           } else {
-            words.addOne(wd, (HashSet() ++ wd.toArray.toSet, (l(1).tail)))
-            if (words.size < 20) println(s"word=$wd, expl=${l(1).tail}")
+            if (wd.contains('(') || wd.contains('-') || wd.contains('_'))  {
+              var w = wd
+              while (w.contains('(')) w = w.init
+              if (w.contains('-'))    w.replaceAllLiterally("-", "")
+              if (w.contains('_'))    w.replaceAllLiterally("_", "")
+              words.addOne(wd, (HashSet() ++ w.toArray.toSet, (l(1).tail)))
+            } else
+              words.addOne(wd, (HashSet() ++ wd.toArray.toSet, (l(1).tail)))
+            if (words.size < 40) println(s"word=$wd, expl=${l(1).tail}")
           }
         }
       }
