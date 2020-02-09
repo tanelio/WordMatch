@@ -35,7 +35,7 @@ object WordMatch extends App {
       val l = lineI.next.split('|')
       val c = l(0).split(' ').drop(4)
       breakable {
-        for (wd <- c if wd.head.isLetter) {
+        for (wd <- c /*if wd.head.isLetter*/) {
           if (!wd.head.isLetter || wd == "n" || wd == "a") break
           if (wd.contains('-') || wd.contains(' ') || wd.contains('_') || wd.contains('.') || wd.contains('(')) {
             //          println(s"Disqualifying: $wd")
