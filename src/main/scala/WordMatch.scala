@@ -19,9 +19,21 @@ object WordMatch extends App {
 
   def findWord(w: String) {
     val word = HashSet() ++ w.toArray.toSet // Get the hashSet of the word
-    for (wrd <- words)
-      if (wrd._2._1.subsetOf(word))
-        println(s"Subset: ${wrd._1}: ${wrd._2._2}")
+    for ((wrd, (hsh, expl)) <- words) {
+      println(s"$wrd (${clean(wrd)})")
+      if (hsh.subsetOf(word))
+        println(s"Subset: ${wrd}: ${expl}")
+    }
+  }
+
+  def clean(w: String): String = {
+    var word = w.toLowerCase
+    if (word.contains('(') || word.contains('-') || word.contains('_'))  {
+      while (word.contains('(')) word = word.init
+      if (word.contains('-'))    word = word.replaceAllLiterally("-", "")
+      if (word.contains('_'))    word = word.replaceAllLiterally("_", "")
+    }
+    word
   }
 
   def Initialize(what: String): Unit = {
@@ -37,19 +49,12 @@ object WordMatch extends App {
       val c = l(0).split(' ').drop(4)
       breakable {
         for (wd <- c) {
-          if (!wd.head.isLetter || wd == "n" || wd == "a") break
+          if (!wd.head.isLetter || wd.length == 1) break
           if (wd.contains('.')) {
             println(s"Disqualifying: $wd")
             discq += 1
           } else {
-            if (wd.contains('(') || wd.contains('-') || wd.contains('_'))  {
-              var w = wd
-              while (w.contains('(')) w = w.init
-              if (w.contains('-'))    w.replaceAllLiterally("-", "")
-              if (w.contains('_'))    w.replaceAllLiterally("_", "")
-              words.addOne(wd, (HashSet() ++ w.toArray.toSet, l(1).tail))
-            } else
-              words.addOne(wd, (HashSet() ++ wd.toArray.toSet, l(1).tail))
+            words.addOne(wd, (HashSet() ++ clean(wd).toArray.toSet, l(1).tail))
             if (words.size < 40) println(s"word=$wd, expl=${l(1).tail}")
           }
         }
