@@ -5,11 +5,11 @@ import scala.io.{Codec, Source}
 import scala.io.Source
 import scala.sys.process._
 import scala.collection.immutable.HashSet
-import scala.collection.mutable
+import scala.collection.mutable.HashMap
 import scala.util.control.Breaks._
 
 object WordMatch extends App {
-  var words: mutable.HashMap[String, (HashSet[Char], String)] = mutable.HashMap()
+  val words: /*mutable.*/ HashMap[String, (HashSet[Char], String)] = /*mutable.*/ HashMap()
   var discq = 0
   for (dict <- List("adj", "adv", "noun", "verb")) Initialize(dict)
   println(s"Disqualified = $discq, words = ${words.size}")
@@ -19,10 +19,18 @@ object WordMatch extends App {
 
   def findWord(w: String) {
     val word = HashSet() ++ w.toArray.toSet // Get the hashSet of the word
+    var c = 0
     for ((wrd, (hsh, expl)) <- words) {
-      println(s"$wrd (${clean(wrd)})")
-      if (hsh.subsetOf(word))
-        println(s"Subset: ${wrd}: ${expl}")
+      c += 1
+//      println(s"$c. $wrd ${hsh} (${clean(wrd)})")
+      try {
+        if (hsh.subsetOf(word))
+          println(s"Subset: ${wrd}: ${expl}")
+      } catch {
+        case e: Exception =>
+          println(s"Exception - $e")
+          println(s"$c. $wrd ${hsh} (${clean(wrd)})")
+      }
     }
   }
 
